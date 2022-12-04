@@ -60,13 +60,13 @@ mod tests {
 
     #[test]
     fn day1_test1() {
-        let nums = parse_input("./input/day3/test.txt");
-        assert_eq!(part1(&nums), 157);
+        let nums = parse_input("./input/day4/test.txt");
+        assert_eq!(part1(&nums), 2);
 	}
 
     #[test]
     fn day1_test2() {
-        let nums = parse_input("./input/day3/test.txt");
-        assert_eq!(part2(&nums), 70);
+        let nums = parse_input("./input/day4/test.txt");
+        assert_eq!(part2(&nums), 4);
 	}
 }
