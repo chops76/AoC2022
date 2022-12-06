@@ -15,7 +15,7 @@ fn parse_input(path: &str) -> Input {
             .nth(stack[stack.len() - 1].len() - 2).unwrap() as u32 - 48) as usize;
 
     let mut stack_vec = Vec::new();
-    for i in 0..num_stacks {
+    for _ in 0..num_stacks {
         stack_vec.push(Vec::new());
     }
     for i in 0..stack.len() - 1 {
