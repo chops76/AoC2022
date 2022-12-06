@@ -32,7 +32,6 @@ fn part2(code: &str) -> usize {
 
 pub fn main() {
     let code = parse_input("./input/day6/input.txt");
-    println!("{}", code);
     
     let p1_timer = Instant::now();
     let p1_result = part1(&code);
