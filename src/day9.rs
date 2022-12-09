@@ -95,7 +95,6 @@ fn part2(moves: &Input) -> usize {
                 knots[i] = (tx, ty);
             }
             seen.insert((knots[9].0, knots[9].1));
-            //println!("{:?}", knots);
         }
     }
     seen.len()
