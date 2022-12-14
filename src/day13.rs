@@ -32,7 +32,6 @@ fn parse_list(line: &str, cur_pos: &mut usize) -> Vec<Item> {
     while char_vec[*cur_pos] != ']' && cur_pos < &mut line.len() {
         if char_vec[*cur_pos] == ',' {
             *cur_pos += 1;
-            continue;
         }
         if char_vec[*cur_pos].is_digit(10) {
             let mut new_pos = *cur_pos + 1;
@@ -52,75 +51,53 @@ fn parse_list(line: &str, cur_pos: &mut usize) -> Vec<Item> {
     ret_vec
 }
 
-fn compare_lists(left: &Vec<Item>, right: &Vec<Item>) -> Ordering {
-    let mut count = 0;
-    loop {
-        if count == left.len() && count == right.len() {
-            return Ordering::Equal;
+fn compare_items(left: &Item, right: &Item) -> Ordering {
+    if let Item::Integer(lv) = left {
+        if let Item::Integer(rv) = right {
+            return lv.cmp(rv);               
         }
-        if count == left.len() {
-            return Ordering::Less;
+        if let Item::ItemList(rlist) = right {
+            let mut tmp_vec = Vec::new();
+            tmp_vec.push(Item::Integer(*lv));
+            return compare_lists(&tmp_vec, rlist);               
         }
-        if count == right.len() {
-            return Ordering::Greater;
-        }
-        match &left[count] {
-            Item::Integer(lv) => {
-                match &right[count] {
-                    Item::Integer(rv) => {
-                        if lv < rv {
-                            return Ordering::Less;
-                        }
-                        if lv > rv {
-                            return Ordering::Greater;
-                        }
-                    }
-                    Item::ItemList(rv) => {
-                        let mut tmp_vec = Vec::new();
-                        tmp_vec.push(Item::Integer(*lv));
-                        let result = compare_lists(&tmp_vec, rv);
-                        match result {
-                            Ordering::Equal => {},
-                            _ => { return result; }
-                        }
-                    }
-                }
-            }
-            Item::ItemList(llist) => {
-                match &right[count] {
-                    Item::Integer(rv) => {
-                        let mut tmp_vec = Vec::new();
-                        tmp_vec.push(Item::Integer(*rv));
-                        let result = compare_lists(llist, &tmp_vec);
-                        match result {
-                            Ordering::Equal => {},
-                            _ => { return result; }
-                        }
-                    }
-                    Item::ItemList(rlist) => {
-                        let result = compare_lists(llist, rlist);
-                        match result {
-                            Ordering::Equal => {},
-                            _ => { return result; }
-                        }
-                    }
-                }
-            }
-        }
-        count += 1;
     }
-    Ordering::Equal;
+    if let Item::ItemList(llist) = left {
+        if let Item::Integer(rv) = right {
+            let mut tmp_vec = Vec::new();
+            tmp_vec.push(Item::Integer(*rv));
+            return compare_lists(llist, &tmp_vec);            
+        }
+        if let Item::ItemList(rlist) = right {
+            return compare_lists(llist, rlist);               
+        }
+    }  
+    Ordering::Equal  
+}
+
+fn compare_lists(left: &Vec<Item>, right: &Vec<Item>) -> Ordering {
+    for count in 0..std::cmp::min(left.len(), right.len()) {
+        let result = compare_items(&left[count], &right[count]);
+        if result != Ordering::Equal {
+            return result;
+        }
+    }
+    left.len().cmp(&right.len())
+}
+
+fn create_marker(value: i32) -> Vec<Item> {
+    let mut tmp_vec = Vec::new();
+    tmp_vec.push(Item::Integer(value));
+    let mut ret_vec = Vec::new();
+    ret_vec.push(Item::ItemList(tmp_vec));
+    ret_vec
 }
 
 fn part1(pairs: &Input) -> usize {
     let mut sum = 0;
     for i in 0..pairs.len() {
-        let result = compare_lists(&pairs[i].0, &pairs[i].1);
-        match result {
-            Ordering::Less => {
-                sum += (i + 1);
-            },
-            _ => {}
+        if compare_lists(&pairs[i].0, &pairs[i].1) == Ordering::Less {
+            sum += (i + 1);
         }
     }
 
@@ -134,34 +111,21 @@ fn part2(pairs: &Input) -> usize {
         items.push(p.1.clone());
     }
     
-    let mut tmp_vec = Vec::new();
-    tmp_vec.push(Item::Integer(2));
-    let mut tmp_vec2 = Vec::new();
-    tmp_vec2.push(Item::ItemList(tmp_vec));
-    items.push(tmp_vec2.clone());
-
-    let mut tmp_vec = Vec::new();
-    tmp_vec.push(Item::Integer(6));
-    let mut tmp_vec6 = Vec::new();
-    tmp_vec6.push(Item::ItemList(tmp_vec));
-    items.push(tmp_vec6.clone());
+    let marker2 = create_marker(2);
+    items.push(marker2.clone());
+    let marker6 = create_marker(6);
+    items.push(marker6.clone());
 
     items.sort_by(compare_lists);
 
     let mut i2 = 0;
     let mut i6 = 0;
     for i in 0..items.len() {
-        match compare_lists(&tmp_vec2, &items[i]) {
-            Ordering::Equal => {
-                i2 = i + 1;
-            }
-            _ => {}
+        if compare_lists(&marker2, &items[i]) == Ordering::Equal {
+            i2 = i + 1;
         }
-        match compare_lists(&tmp_vec6, &items[i]) {
-            Ordering::Equal => {
-                i6 = i + 1;
-            }
-            _ => {}
+        if compare_lists(&marker6, &items[i]) == Ordering::Equal {
+            i6 = i + 1;
         }
     }
 
