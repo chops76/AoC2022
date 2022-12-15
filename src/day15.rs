@@ -59,7 +59,6 @@ fn part1(points: &Input, line: i64) -> i64 {
                                 .collect::<HashSet<&(i64,i64)>>().len() as i64;
     let combined = find_ranges(points, line);
 
-    println!("{:?} {}", combined, beacons_on_line);
     combined.iter().map(|(x1,x2)| (x2-x1) + 1).sum::<i64>() - beacons_on_line
 }
 
