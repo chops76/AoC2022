@@ -83,7 +83,7 @@ fn part1(rooms: &Input) -> i64 {
 }
 
 fn subsets<T: Clone>(items: Vec<T>) -> Vec<Vec<T>> {
-    (0..=items.len())
+    (0..=items.len()/2)
         .map(|count| items.clone().into_iter().combinations(count))
         .flatten()
         .collect()
